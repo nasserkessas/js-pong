@@ -1,10 +1,8 @@
 const CANVAS = { x: 900, y: 450 }
 const PLAYERSPEED = 3;
-const ball = { x: CANVAS.x / 2, y: CANVAS.y / 2, radius: 15, deg: 45, speed: 10 }
-const player1 = { x: CANVAS.x - 20, y: CANVAS.y / 2, width: 25, height: 90 }
+const ball = { x: CANVAS.x / 2, y: CANVAS.y / 2, radius: 15, deg: 45, speed: 8 }
+const player1 = { x: CANVAS.x - 20 - 25, y: CANVAS.y / 2, width: 25, height: 90 }
 const player2 = { x: 20, y: CANVAS.y / 2, width: 25, height: 90 }
-let slow = false
-const speeds = { slow: 0.7, fast: 10 }
 const KEYDOWN = {}
 const KEYMAP = {
     38: 'up',
@@ -23,7 +21,7 @@ const redraw = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.beginPath();
-    ctx.rect(player1.x - player1.width, CANVAS.y - player1.y - player1.height / 2, player1.width, player1.height);
+    ctx.rect(player1.x, CANVAS.y - player1.y - player1.height / 2, player1.width, player1.height);
     ctx.fillStyle = "white";
     ctx.fill();
 
@@ -55,24 +53,21 @@ const update = () => {
 }
 
 const checkCollision = () => {
+    if (ball.y + ball.radius >= CANVAS.y || ball.y - ball.radius <= 0) { ball.deg = 180 - ball.deg; return; } // if on top or bottom
 
-    if (ball.y + ball.radius >= CANVAS.y || ball.y - ball.radius <= 0) {ball.deg = 180 - ball.deg; return;} // if on top or bottom
-    console.log("past 1")
     if (ball.x + ball.radius < player1.x && ball.x - ball.radius > player2.x + player2.width) return; // if past front of player1's paddle
-    console.log("past 2")
 
     if (ball.x + ball.radius >= CANVAS.x) { ball.speed = 0; console.log("HA HA PLAYER 1 LOSES"); return; } // if game over on player1's side
     if (ball.x - ball.radius <= 0) { ball.speed = 0; console.log("HA HA PLAYER 2 LOSES"); return; } // if game over on player2's side
-    console.log("past 3")
 
-    if (ball.y - ball.radius <= player1.y + player1.height / 2 && ball.y >= player1.y - player1.height) ball.deg = 90 - ball.deg // if on player1's paddle
-    if (ball.y + ball.radius >= player2.y - player2.height / 2 && ball.y - ball.radius <= player2.y + player2.height / 2) ball.deg = 90 - ball.deg // if on player2's paddle
-}
-
-const toggleSpeed = () => {
-    switch (slow) {
-        case true: ball.speed = speeds.fast; slow = false; break;
-        case false: ball.speed = speeds.slow; slow = true; break;
+    if (ball.x - ball.radius >= player2.x + player2.width && ball.y - ball.radius <= player1.y + player1.height / 2 && ball.y >= player1.y - player1.height / 2) {
+        ball.deg = 90 - (Math.abs(player1.y - ball.y)) - ball.deg
+        console.log(player1.y - ball.y)
+        ball.deg = 225
+    }
+    if (ball.x + ball.radius <= player1.x - player1.width && ball.y + ball.radius >= player2.y - player2.height / 2 && ball.y - ball.radius <= player2.y + player2.height / 2) {
+        ball.deg = 90 + (Math.abs(player2.y - ball.y)) + ball.deg
+        console.log(player2.y - ball.y)
     }
 }
 
